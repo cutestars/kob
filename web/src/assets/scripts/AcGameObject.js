@@ -3,7 +3,7 @@ const AC_GAME_OBJECTS = [];
 export class AcGameObject {
     constructor() {
         AC_GAME_OBJECTS.push(this);
-        this.timeDelta = 0;
+        this.timedelta = 0;
         this.has_called_start = false;
     }
     start() { //只执行一次
@@ -33,7 +33,7 @@ const step = timestamp => {
             obj.start();
         }
         else {
-            obj.timeDelta = timestamp - last_timestamp;
+            obj.timedelta = timestamp - last_timestamp;
             obj.update();
         }
     }
