@@ -1,5 +1,5 @@
 <template>
-    <ContentField>
+    <ContentField v-if="!$store.state.user.pulling_info">
         <div class="row justify-content-md-center">
             <div class="col-3">
                 <form @submit.prevent="login">
@@ -24,6 +24,7 @@ import ContentField from '@/components/ContentField.vue'
 import { useStore } from 'vuex'
 import { ref } from 'vue'
 import router from '@/router/index'
+
 export default {
     components: {
         ContentField
@@ -33,6 +34,23 @@ export default {
         let username=ref('');
         let password=ref('');
         let error_message=ref('');
+
+        const jwt_token=localStorage.getItem("jwt_token");
+
+        if(jwt_token){
+            store.commit("updateToken",jwt_token);
+            store.dispatch("getinfo",{
+                success(){
+                    router.push({name:"home"});
+                    store.commit("updatePullingInfo",false);
+                },
+                error(){
+                    store.commit("updatePullingInfo",false);
+                }
+            })
+        }else{
+            store.commit("updatePullingInfo",false);
+        }
         const login=()=>{
             error_message.value="";
             store.dispatch("login",{
@@ -42,7 +60,6 @@ export default {
                     store.dispatch("getinfo",{
                         success(){
                             router.push({name:'home'});
-                            console.log(store.state.user);
                         },
                     })
                 },
