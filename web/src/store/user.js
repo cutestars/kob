@@ -3,7 +3,7 @@ export default {
     state: {
         id: "",
         username: "",
-        phpto: "",
+        photo: "",
         token: "",
         is_login: false,
         pulling_info:true,
@@ -14,7 +14,7 @@ export default {
         updateUser(state, user) {
             state.id = user.id;
             state.username = user.username;
-            state.phpto = user.phpto;
+            state.photo = user.photo;
             state.is_login = user.is_login;
         },
         updateToken(state, token) {
