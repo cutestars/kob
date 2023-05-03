@@ -37,8 +37,11 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="add-bot-code" class="form-label">代码</label>
-                                            <VAceEditor v-model:value="botadd.content" @init="editorInit" lang="c_cpp"
-                                                theme="textmate" style="height: 300px" />
+                                            <VAceEditor
+                                                v-model:value="botadd.content"
+                                                @init="editorInit" lang="c_cpp"
+                                                theme="textmate"
+                                                style="height: 300px" />
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -89,8 +92,12 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="add-bot-code" class="form-label">代码</label>
-                                                            <VAceEditor v-model:value="bot.content" @init="editorInit"
-                                                                lang="c_cpp" theme="textmate" style="height: 300px" />
+                                                            <VAceEditor 
+                                                                v-model:value="bot.content" 
+                                                                @init="editorInit"
+                                                                lang="c_cpp"
+                                                                theme="textmate" 
+                                                                style="height: 300px" />
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
