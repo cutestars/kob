@@ -27,7 +27,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 div.gamemap {
     width: 100%;
     height: 100%;

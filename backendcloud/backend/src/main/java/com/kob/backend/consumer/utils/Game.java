@@ -2,7 +2,10 @@ package com.kob.backend.consumer.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.WebSocketServer;
+import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.Record;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,14 +25,33 @@ public class Game extends Thread {
     private ReentrantLock lock = new ReentrantLock();
     private String status = "playing";//playing->finshed
     private String loser = ""; // all  A  B
+    private final static String addBotUrl = "http://127.0.0.1:3002/bot/add/";
 
-    public Game(Integer rows, Integer cols, Integer inner_walls_count, Integer idA, Integer idB) {
+    public Game(
+            Integer rows,
+            Integer cols,
+            Integer inner_walls_count,
+            Integer idA,
+            Bot botA,
+            Integer idB,
+            Bot botB
+    ) {
         this.rows = rows;
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
-        playerA = new Player(idA, rows - 2, 1, new ArrayList<>());
-        playerB = new Player(idB, 1, cols - 2, new ArrayList<>());
+        Integer botIdA = -1, botIdB = -1;
+        String botCodeA = "", botCodeB = "";
+        if (botA != null) {
+            botIdA = botA.getId();
+            botCodeA = botA.getContent();
+        }
+        if (botB != null) {
+            botIdB = botB.getId();
+            botCodeB = botB.getContent();
+        }
+        playerA = new Player(idA, botIdA, botCodeA, rows - 2, 1, new ArrayList<>());
+        playerB = new Player(idB, botIdB, botCodeB, 1, cols - 2, new ArrayList<>());
     }
 
     public Player getPlayerA() {
@@ -120,12 +142,41 @@ public class Game extends Thread {
         }
     }
 
+    private String getInput(Player player) {
+        Player me, you;
+        if (playerA.getId().equals(player.getId())) {
+            me = playerA;
+            you = playerB;
+        } else {
+            me = playerB;
+            you = playerA;
+        }
+        return getMapString() + "#" +
+                me.getSx() + "#" +
+                me.getSy() + "#(" +
+                me.getStepsString() + ")#" +
+                you.getSx() + "#" +
+                you.getSy() + "#(" +
+                you.getStepsString() + ")";
+    }
+
+    private void sendBotCode(Player player) {
+        if (player.getBotId().equals(-1)) return;
+        MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
+        data.add("user_id", player.getId().toString());
+        data.add("bot_code", player.getBotCode());
+        data.add("input", getInput(player));
+        WebSocketServer.restTemplate.postForObject(addBotUrl, data, String.class);
+    }
+
     private boolean nextStep() {
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        sendBotCode(playerA);
+        sendBotCode(playerB);
         for (int i = 0; i < 50; i++) {
             try {
                 Thread.sleep(100);
@@ -146,15 +197,15 @@ public class Game extends Thread {
         return false;
     }
 
-    private boolean check_valid(List<Cell> cellsA,List<Cell> cellsB){
-        int n=cellsA.size();
-        Cell cell=cellsA.get(n-1);
-        if(g[cell.x][cell.y]==1) return false;
-        for(int i=0;i<n-1;i++) {
+    private boolean check_valid(List<Cell> cellsA, List<Cell> cellsB) {
+        int n = cellsA.size();
+        Cell cell = cellsA.get(n - 1);
+        if (g[cell.x][cell.y] == 1) return false;
+        for (int i = 0; i < n - 1; i++) {
             if (cellsA.get(i).x == cell.x && cellsA.get(i).y == cell.y)
                 return false;
         }
-        for(int i=0;i<n-1;i++) {
+        for (int i = 0; i < n - 1; i++) {
             if (cellsB.get(i).x == cell.x && cellsB.get(i).y == cell.y)
                 return false;
         }
@@ -162,27 +213,27 @@ public class Game extends Thread {
     }
 
     private void judge() {
-        List<Cell> cellsA= playerA.getCells();
-        List<Cell> cellsB= playerB.getCells();
+        List<Cell> cellsA = playerA.getCells();
+        List<Cell> cellsB = playerB.getCells();
 
-        boolean validA=check_valid(cellsA,cellsB);
-        boolean validB=check_valid(cellsB,cellsA);
-        if(!validA||!validB){
-            status="finished";
-            if(!validA&&!validB){
-                loser="all";
+        boolean validA = check_valid(cellsA, cellsB);
+        boolean validB = check_valid(cellsB, cellsA);
+        if (!validA || !validB) {
+            status = "finished";
+            if (!validA && !validB) {
+                loser = "all";
             } else if (!validA) {
-                loser="A";
-            }else{
-                loser="B";
+                loser = "A";
+            } else {
+                loser = "B";
             }
         }
     }
 
     private void sendAllMessage(String message) {
-        if( WebSocketServer.users.get(playerA.getId())!=null)
+        if (WebSocketServer.users.get(playerA.getId()) != null)
             WebSocketServer.users.get(playerA.getId()).sendMessage(message);
-        if( WebSocketServer.users.get(playerB.getId())!=null)
+        if (WebSocketServer.users.get(playerB.getId()) != null)
             WebSocketServer.users.get(playerB.getId()).sendMessage(message);
     }
 
@@ -194,22 +245,23 @@ public class Game extends Thread {
             resp.put("a_direction", nextStepA);
             resp.put("b_direction", nextStepB);
             sendAllMessage(resp.toJSONString());
-            nextStepA=nextStepB=null;
+            nextStepA = nextStepB = null;
         } finally {
             lock.unlock();
         }
     }
-    private String getMapString(){
-        StringBuilder res=new StringBuilder();
-        for(int i=0;i<rows;i++){
-            for(int j=0;j<cols;j++){
+
+    private String getMapString() {
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 res.append(g[i][j]);
             }
         }
         return res.toString();
     }
 
-    private void saveToDatabase(){
+    private void saveToDatabase() {
         Record record = new Record(
                 null,
                 playerA.getId(),
@@ -217,7 +269,7 @@ public class Game extends Thread {
                 playerA.getSy(),
                 playerB.getId(),
                 playerB.getSx(),
-                playerB.getSx(),
+                playerB.getSy(),
                 playerA.getStepsString(),
                 playerB.getStepsString(),
                 getMapString(),

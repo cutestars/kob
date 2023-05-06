@@ -1,4 +1,4 @@
-package com.yxl.matchingsystem.service.impl.utils;
+package com.kob.matchingsystem.service.impl.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class MatchingPool extends Thread {
     private static List<Player> players = new ArrayList<>();
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private static RestTemplate restTemplate;
     private final static String startGameUrl = "http://127.0.0.1:3000/pk/start/game/";
 
@@ -22,10 +22,10 @@ public class MatchingPool extends Thread {
         MatchingPool.restTemplate = restTemplate;
     }
 
-    public void addPlayer(Integer userId, Integer rating) {
+    public void addPlayer(Integer userId, Integer rating,Integer botId) {
         lock.lock();
         try {
-            players.add(new Player(userId, rating, 0));
+            players.add(new Player(userId, rating, botId,0));
         } finally {
             lock.unlock();
         }
@@ -34,13 +34,13 @@ public class MatchingPool extends Thread {
     public void removePlayer(Integer userId) {
         lock.lock();
         try {
-            List<Player> newplayers = new ArrayList<>();
+            List<Player> newPlayers = new ArrayList<>();
             for (Player player : players) {
                 if (!player.getUserId().equals(userId)) {
-                    newplayers.add(player);
+                    newPlayers.add(player);
                 }
             }
-            players = newplayers;
+            players = newPlayers;
         } finally {
             lock.unlock();
         }
@@ -55,14 +55,16 @@ public class MatchingPool extends Thread {
     private boolean checkMatched(Player a, Player b) {
         int ratingDelta = Math.abs(a.getRating() - b.getRating());
         int waitingTime = Math.min(a.getWaitingTime(), b.getWaitingTime());
-        return ratingDelta <= waitingTime * 10;
+        return ratingDelta <= waitingTime * 50;
     }
 
     private void sendResult(Player a, Player b) {
         System.out.println("send result: " + a + " " + b);
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("a_id", a.getUserId().toString());
+        data.add("a_bot_id", a.getBotId().toString());
         data.add("b_id", b.getUserId().toString());
+        data.add("b_bot_id", b.getBotId().toString());
         restTemplate.postForObject(startGameUrl, data, String.class);
     }
 

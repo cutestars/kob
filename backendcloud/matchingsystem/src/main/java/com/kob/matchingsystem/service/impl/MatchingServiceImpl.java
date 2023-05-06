@@ -1,7 +1,7 @@
-package com.yxl.matchingsystem.service.impl;
+package com.kob.matchingsystem.service.impl;
 
-import com.yxl.matchingsystem.service.MatchingService;
-import com.yxl.matchingsystem.service.impl.utils.MatchingPool;
+import com.kob.matchingsystem.service.MatchingService;
+import com.kob.matchingsystem.service.impl.utils.MatchingPool;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,9 +9,9 @@ public class MatchingServiceImpl implements MatchingService {
     public final static MatchingPool matchingPool=new MatchingPool();
 
     @Override
-    public String addPlayer(Integer userId, Integer rating) {
-        System.out.println("addplayer"+userId+ " " + rating);
-        matchingPool.addPlayer(userId,rating);
+    public String addPlayer(Integer userId, Integer rating,Integer botId) {
+        System.out.println("addplayer"+userId+ " " + rating+" "+botId);
+        matchingPool.addPlayer(userId,rating,botId);
         return "add player success";
     }
 

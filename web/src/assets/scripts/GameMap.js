@@ -16,18 +16,7 @@ export class GameMap extends AcGameObject {
         this.snakes = [
             new Snake({ id: 0, color: "#4876EC", r: this.rows - 2, c: 1 }, this),
             new Snake({ id: 1, color: "#F94848", r: 1, c: this.cols - 2 }, this),
-        ]
-    }
-
-    check_connectivity(g, sx, sy, tx, ty) {
-        if (sx == tx && sy == ty) return true;
-        g[sx][sy] = true;
-        let dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1];
-        for (let i = 0; i < 4; i++) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (!g[x][y] && this.check_connectivity(g, x, y, tx, ty)) return true;
-        }
-        return false;
+        ];
     }
 
     create_walls() {

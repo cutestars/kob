@@ -1,6 +1,6 @@
-package com.yxl.matchingsystem;
+package com.kob.matchingsystem;
 
-import com.yxl.matchingsystem.service.impl.MatchingServiceImpl;
+import com.kob.matchingsystem.service.impl.MatchingServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
