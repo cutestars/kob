@@ -2,6 +2,7 @@ package com.kob.botrunningsystem.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Bot implements com.kob.botrunningsystem.utils.BotInterface {
     static class Cell {
@@ -57,13 +58,19 @@ public class Bot implements com.kob.botrunningsystem.utils.BotInterface {
         for (Cell c : bCells) g[c.x][c.y] = 1;
 
         int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
+        Random r=new Random();
+        List<Integer> directionList=new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             int x = aCells.get(aCells.size() - 1).x + dx[i];
             int y = aCells.get(aCells.size() - 1).y + dy[i];
             if (x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0){
-                return i;
+                directionList.add(i);
             }
         }
-        return 0;
+        if(!directionList.isEmpty()){
+            int RandomIndex=r.nextInt(directionList.size());
+            return directionList.get(RandomIndex);
+        }
+        return r.nextInt(4);
     }
 }

@@ -28,7 +28,7 @@ public class WebSocketServer {
     private User user;
     private Session session = null;
 
-    private static UserMapper userMapper;
+    public static UserMapper userMapper;
     public static RecordMapper recordMapper;
     private static BotMapper botMapper;
     public static RestTemplate restTemplate;
@@ -93,7 +93,6 @@ public class WebSocketServer {
         if(users.get(b.getId())!=null)
             users.get(b.getId()).game = game;
 
-        game.start();
 
         JSONObject respGame = new JSONObject();
         respGame.put("a_id", game.getPlayerA().getId());
@@ -120,6 +119,12 @@ public class WebSocketServer {
         respB.put("game", respGame);
         if( users.get(b.getId())!=null)
             users.get(b.getId()).sendMessage(respB.toJSONString());
+        try {
+            Thread.sleep(3200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        game.start();
     }
 
     private void startMatching(Integer botId) {
