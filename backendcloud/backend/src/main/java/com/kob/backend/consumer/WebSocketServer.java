@@ -58,16 +58,13 @@ public class WebSocketServer {
         this.user = userMapper.selectById(userId);
         if (this.user != null) {
             users.put(userId, this);
-            System.out.println("connected!");
         } else {
             this.session.close();
         }
-        System.out.println(users);
     }
 
     @OnClose
     public void onClose() {
-        System.out.println("disconnected!");
         if (this.user != null) {
             users.remove(this.user.getId());
         }
@@ -128,7 +125,6 @@ public class WebSocketServer {
     }
 
     private void startMatching(Integer botId) {
-        System.out.println("startmatching");
         MultiValueMap<String,String> data=new LinkedMultiValueMap<>();
         data.add("user_id",this.user.getId().toString());
         data.add("rating",this.user.getRating().toString());
@@ -137,7 +133,6 @@ public class WebSocketServer {
     }
 
     private void stopMatching() {
-        System.out.println("stopmatching");
         MultiValueMap<String,String> data =new LinkedMultiValueMap<>();
         data.add("user_id",this.user.getId().toString());
         restTemplate.postForObject(removePlayerUrl,data,String.class);
@@ -155,7 +150,6 @@ public class WebSocketServer {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        System.out.println("receive message!");
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         if ("start-matching".equals(event)) {

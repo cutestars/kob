@@ -1,6 +1,6 @@
 <template>
     <ContentField>
-        <table class="table table-hover" style="text-align: center;">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>蓝方</th>
@@ -26,11 +26,24 @@
                     <td>{{ record.record.createtime }}</td>
                     <td>
                         <button @click="open_record_content(record.record.id)" type="button"
-                            class="btn btn-secondary">查看对局回放</button>
+                            class="btn btn-primary">查看对局回放</button>
                     </td>
                 </tr>
             </tbody>
         </table>
+        <nav aria-label="...">
+            <ul class="pagination" style="float: right;margin-right: 5vw;">
+                <li class="page-item">
+                    <a class="page-link" @click="click_page(-2)" href="#">上一页</a>
+                </li>
+                <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number">
+                    <a class="page-link" @click="click_page(page.number)" href="#">{{ page.number }}</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" @click="click_page(-1)" href="#">下一页</a>
+                </li>
+            </ul>
+        </nav>
     </ContentField>
 </template>
 
@@ -49,10 +62,34 @@ export default {
         let records = ref([]);
         let current_page = 1;
         let total_records = 0;
+        let pages = ref([]);
+
+        const click_page = page => {
+            if (page === -2) page = current_page - 1;
+            else if (page === -1) page = current_page + 1;
+            let max_pages = parseInt(Math.ceil(total_records / 10));
+            if(page >= 1 && page <= max_pages)
+            pull_page(page);
+        }
+
+        const udpate_pages = () => {
+            let max_pages = parseInt(Math.ceil(total_records / 10));
+            let new_pages = [];
+            for (let i = current_page - 2; i <= current_page + 2; i++) {
+                if (i >= 1 && i <= max_pages) {
+                    new_pages.push({
+                        number: i,
+                        is_active: i === current_page ? "active" : "",
+                    });
+                }
+            }
+            pages.value = new_pages;
+        }
+
         const pull_page = page => {
             current_page = page;
             $.ajax({
-                url: "http://localhost:3000/record/getlist/",
+                url: "https://app5421.acapp.acwing.com.cn/api/record/getlist/",
                 type: "get",
                 data: {
                     page,
@@ -63,6 +100,7 @@ export default {
                 success(resp) {
                     records.value = resp.records;
                     total_records = resp.records_count;
+                    udpate_pages();
                 },
                 error(resp) {
                     console.log(resp);
@@ -88,7 +126,7 @@ export default {
                 if (record.record.id === recordId) {
                     store.commit("updateIsRecord", true);
                     store.commit("updateGame", {
-                        map:stringTo2D(record.record.map),
+                        map: stringTo2D(record.record.map),
                         a_id: record.record.aid,
                         a_sx: record.record.asx,
                         a_sy: record.record.asy,
@@ -96,11 +134,11 @@ export default {
                         b_sx: record.record.bsx,
                         b_sy: record.record.bsy,
                     });
-                    store.commit("updateSteps",{
-                        a_steps:record.record.asteps,
-                        b_steps:record.record.bsteps,
+                    store.commit("updateSteps", {
+                        a_steps: record.record.asteps,
+                        b_steps: record.record.bsteps,
                     });
-                    store.commit( "updateRecordLoser", record.record.loser);
+                    store.commit("updateRecordLoser", record.record.loser);
                     router.push({
                         name: "record_content",
                         params: {
@@ -111,11 +149,11 @@ export default {
                 }
             }
         }
-
-        console.log(total_records);
         return {
             records,
             open_record_content,
+            pages,
+            click_page,
         }
     }
 }

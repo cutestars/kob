@@ -3,7 +3,6 @@ export default {
         status: "matching", //matching表示正在匹配，playing表示正在对战
         socket: null,
         starttime:0,
-        starttime:0,
         opponent_username: "",
         opponent_photo: "",
         gamemap:null,
