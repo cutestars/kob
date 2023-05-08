@@ -5,8 +5,7 @@
 联机AI对战平台，回合制小游戏
 
 ### 项目结构
-
-### ![流程图-导出](https://git.acwing.com/yao_xinlong/kob/-/tree/master/img/img.png)
+{% asset_img img.png %}
 
 ### 实现模块
 
@@ -22,5 +21,4 @@
     * 注册
     * 登录
     * 我的Bot
-    * Bot的记录
 
