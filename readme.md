@@ -6,7 +6,7 @@
 
 ### 项目结构
 
-### ![流程图-导出](D:\edge下载\流程图-导出.png)
+### ![流程图-导出](https://git.acwing.com/yao_xinlong/kob/-/tree/master/img/img.png)
 
 ### 实现模块
 
