@@ -5,7 +5,7 @@
 联机AI对战平台，回合制小游戏
 
 ### 项目结构
-![项目结构图](https://git.acwing.com/yao_xinlong/kob/-/tree/master/img/img.png"url")
+![项目结构图](https://git.acwing.com/yao_xinlong/kob/-/raw/master/img/img.png)
 
 ### 实现模块
 
